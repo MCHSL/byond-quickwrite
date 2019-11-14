@@ -1,4 +1,4 @@
-#define QUICKWRITE "quickwrite.dll"
+#define QUICKWRITE (world.system_type == MS_WINDOWS ? "quickwrite.dll" : "libquickwrite.so")
 
 #define QUICKWRITE_OPEN(filename) call(QUICKWRITE, "open_file")(filename)
 #define QUICKWRITE_CLOSE(filename) call(QUICKWRITE, "close_file")(filename)
