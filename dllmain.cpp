@@ -1,11 +1,18 @@
+#ifdef _WIN32
 #include <Windows.h>
+#endif
 #include <unordered_map>
 #include <fstream>
 #include <thread>
+#ifdef _WIN32
+#define EXPORT __declspec(dllexport)
+#else
+#define EXPORT __attribute__((visibility("default")))
+#endif
 
 std::unordered_map<std::string, std::ofstream> file_handles;
 
-extern "C" __declspec(dllexport) const char* open_file(int n_args, const char** args)
+extern "C" EXPORT const char* open_file(int n_args, const char** args)
 {
 	std::string filename(args[0]);
 	if (file_handles.find(filename) != file_handles.end())
@@ -22,7 +29,7 @@ extern "C" __declspec(dllexport) const char* open_file(int n_args, const char** 
 	return "";
 }
 
-extern "C" __declspec(dllexport) const char* close_file(int n_args, const char** args)
+extern "C" EXPORT const char* close_file(int n_args, const char** args)
 {
 	std::string filename(args[0]);
 	if (file_handles.find(filename) != file_handles.end())
@@ -35,7 +42,7 @@ extern "C" __declspec(dllexport) const char* close_file(int n_args, const char**
 	return "ERROR: Attempted to close unopened file.";
 }
 
-extern "C" __declspec(dllexport) const char* write_file(int n_args, const char** args)
+extern "C" EXPORT const char* write_file(int n_args, const char** args)
 {
 	std::string filename(args[0]);
 	if (file_handles.find(filename) != file_handles.end())
@@ -46,7 +53,7 @@ extern "C" __declspec(dllexport) const char* write_file(int n_args, const char**
 	return "ERROR: Attempted to write to unopened file.";
 }
 
-extern "C" __declspec(dllexport) const char* close_all(int n_args, const char** args)
+extern "C" EXPORT const char* close_all(int n_args, const char** args)
 {
 	for (auto it = file_handles.begin(); it != file_handles.end(); )
 	{
@@ -56,6 +63,7 @@ extern "C" __declspec(dllexport) const char* close_all(int n_args, const char** 
 	return "";
 }
 
+#ifdef _WIN32
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
                        LPVOID lpReserved
@@ -71,4 +79,4 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     }
     return TRUE;
 }
-
+#endif
